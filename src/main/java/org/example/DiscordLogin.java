@@ -25,7 +25,7 @@ public class DiscordLogin {
     private static final Random rnd = new Random();
     public static List<String> browsers = List.of("kxyw4oy");
     public static List<String> discordAccounts = Arrays.asList(
-            "caerintisci1983@rambler.ru:Web3@Alex7281:wv7c 2ubb vry5 32s6 qwef gz7a r5jd ibgn"
+            "account:psw:2fa"
     );
     private static final long TOTP_TIME_STEP_SECONDS = 30;
     private static final String DISCORD_INVITE_URL = "https://discord.com/invite/r2yield";
@@ -305,6 +305,7 @@ public class DiscordLogin {
             joinDiscordServer(driver);
 
             System.out.println("登录流程完成，耗时: " + (System.currentTimeMillis() - stepStart) + "ms");
+            Thread.sleep(10 * 1000);
         } catch (Exception e) {
             System.out.println("Discord 登录失败: " + e.getMessage());
             e.printStackTrace();

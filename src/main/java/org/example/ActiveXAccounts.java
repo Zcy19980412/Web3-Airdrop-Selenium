@@ -122,6 +122,7 @@ public class ActiveXAccounts {
             "@hualunjiejie",
             "@EvaCmore",
             "@0xAllen888",
+            "@Build_OnBNB",
             "@0xcryptowizard"
     );
 

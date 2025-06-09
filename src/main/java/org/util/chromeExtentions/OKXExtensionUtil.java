@@ -20,7 +20,9 @@ public class OKXExtensionUtil {
             String okxExtensionId = "mcohilncbfahbmgdjkbpemcciiolgcge"; // 替换为实际扩展 ID
             String okxUrl = "chrome-extension://" + okxExtensionId + "/popup.html";
             driver.get(okxUrl);
-            ((JavascriptExecutor) driver).executeScript("document.body.style.zoom='0.67'");
+            driver.navigate().refresh();
+            Thread.sleep(3 * 1000);
+            ((JavascriptExecutor) driver).executeScript("document.body.style.zoom='0.9'");
             System.out.println("导航到 OKX 钱包扩展页面: " + okxUrl);
             humanDelay(5000, 8000);
 
@@ -171,6 +173,7 @@ public class OKXExtensionUtil {
 
 
     private static boolean containsElement(WebDriver driver, String xpath) {
+        ((JavascriptExecutor) driver).executeScript("document.body.style.zoom='0.9'");
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
         WebElement webElement = null;
         try {
