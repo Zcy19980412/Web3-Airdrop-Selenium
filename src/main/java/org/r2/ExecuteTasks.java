@@ -98,6 +98,8 @@ public class ExecuteTasks {
 
     public static ArrayList<String> failList = new ArrayList<>();
 
+    public static Map<String, String> rankMap = new HashMap<>();
+
 
     public static void main(String[] args) {
         act();
@@ -200,6 +202,12 @@ public class ExecuteTasks {
                 r2WindowHandle = driver.getWindowHandle();
                 doDepositAllChain(driver, okxLoginWindowHandle, r2WindowHandle);
 
+                //rank
+                driver.get("https://www.r2.money/overview");
+                driver.navigate().refresh();
+                Thread.sleep(4 * 1000);
+                searchRank(driver);
+
                 System.out.println("浏览器 " + browser + " 执行脚本完成");
             } catch (Exception e) {
                 System.out.println("浏览器 " + browser + " 执行脚本出错: " + e.getMessage());
@@ -216,6 +224,25 @@ public class ExecuteTasks {
         long end = System.currentTimeMillis();
         System.out.println("脚本执行完成，总耗时: " + (end - start) + "毫秒");
         System.out.println(failList);
+        for (Map.Entry<String, String> stringStringEntry : rankMap.entrySet()) {
+            System.out.println(stringStringEntry.getKey() + " : " + stringStringEntry.getValue());
+        }
+    }
+
+    private static void searchRank(WebDriver driver) {
+        WebElement webElement;
+        try {
+            Thread.sleep(3 * 1000);
+            webElement = driver.findElement(By.xpath("//div[text()='User Rank']/following-sibling::div//div"));
+            String rank = webElement.getText();
+            System.out.println("User Rank: " + rank);
+            rankMap.put(CURRENT_BROWSER, rank);
+
+            humanDelay(1000, 2000);
+        } catch (Exception e) {
+            System.out.println("searchRank error:" + e.getMessage());
+            failList.add("浏览器 " + CURRENT_BROWSER + " 执行searchRank脚本出错: " + e.getMessage());
+        }
     }
 
     private static void doLPAllChain(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle) throws InterruptedException {
