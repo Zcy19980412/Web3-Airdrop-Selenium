@@ -138,6 +138,10 @@ public class ActiveXAccounts {
     );
 
     public static void main(String[] args) throws InterruptedException {
+        act();
+    }
+
+    public static void act(){
         HttpClient httpClient = HttpClient.newHttpClient();
         long start = System.currentTimeMillis();
         for (String browser : browsers) {

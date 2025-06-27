@@ -1,7 +1,6 @@
 package org.r2;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
+
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -10,10 +9,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.util.PageUtil;
 import org.util.chromeExtentions.OKXExtensionUtil;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+
 import java.time.Duration;
 import java.util.*;
 
@@ -132,7 +128,7 @@ public class ExecuteTasks {
         }
     }
 
-    public static void act(){
+    public static void act() {
         long start = System.currentTimeMillis();
 
         for (int i = 0; i < browsers.size(); i++) {
@@ -197,6 +193,12 @@ public class ExecuteTasks {
                 r2WindowHandle = driver.getWindowHandle();
                 doLPAllChain(driver, okxLoginWindowHandle, r2WindowHandle);
 
+                // doDeposit
+                driver.get("https://www.r2.money/deposit");
+                driver.navigate().refresh();
+                Thread.sleep(4 * 1000);
+                r2WindowHandle = driver.getWindowHandle();
+                doDepositAllChain(driver, okxLoginWindowHandle, r2WindowHandle);
 
                 System.out.println("浏览器 " + browser + " 执行脚本完成");
             } catch (Exception e) {
@@ -323,6 +325,12 @@ public class ExecuteTasks {
         }
     }
 
+    private static void doDepositAllChain(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle) throws InterruptedException {
+        doDeposit(driver, okxLoginWindowHandle, r2WindowHandle);
+        driver.navigate().refresh();
+        Thread.sleep(4 * 1000);
+    }
+
     private static void doStake(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle, int amount, int sleepTime) throws InterruptedException {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
         WebElement webElement = null;
@@ -422,6 +430,47 @@ public class ExecuteTasks {
         } catch (Exception e) {
             System.out.println("doSwap error:" + e.getMessage());
             failList.add("浏览器 " + CURRENT_BROWSER + " 执行doSwap脚本出错: " + e.getMessage());
+        }
+    }
+
+    private static void doDeposit(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        WebElement webElement = null;
+        try {
+            //input number
+            webElement = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[.//span[text()='Max']]")
+            ));
+            webElement.click();
+            System.out.println("click Max done(Deposit WBTC)");
+            humanDelay(1000, 2000);
+
+            //click buy
+            webElement = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[.//span[text()='Deposit']]")
+            ));
+            webElement.click();
+            System.out.println("click Deposit done!");
+            humanDelay(3000, 6000);
+
+            //okx wallet approve
+            driver.switchTo().window(okxLoginWindowHandle);
+            Thread.sleep(5 * 1000);
+
+            if (OKXExtensionUtil.needApprove(driver)) {
+                //approve
+                OKXExtensionUtil.approve(driver);
+                Thread.sleep(25 * 1000);
+            }
+            //okx wallet confirm
+            OKXExtensionUtil.confirm(driver);
+            humanDelay(3000, 6000);
+            driver.switchTo().window(r2WindowHandle);
+            Thread.sleep(25 * 1000);
+
+        } catch (Exception e) {
+            System.out.println("doDeposit error:" + e.getMessage());
+            failList.add("浏览器 " + CURRENT_BROWSER + " 执行doDeposit脚本出错: " + e.getMessage());
         }
     }
 

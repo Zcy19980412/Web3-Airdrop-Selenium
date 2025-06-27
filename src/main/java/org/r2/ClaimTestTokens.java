@@ -1,7 +1,6 @@
 package org.r2;
 
-import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
+
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
@@ -9,10 +8,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.util.PageUtil;
 
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+
 import java.time.Duration;
 import java.util.*;
 
@@ -76,7 +72,10 @@ public class ClaimTestTokens {
     );
 
     public static void main(String[] args) throws InterruptedException {
-        HttpClient httpClient = HttpClient.newHttpClient();
+        act();
+    }
+
+    public static void act(){
         long start = System.currentTimeMillis();
 
         for (int i = 0; i < browsers.size(); i++) {
@@ -129,7 +128,6 @@ public class ClaimTestTokens {
         }
         long end = System.currentTimeMillis();
         System.out.println("脚本执行完成，总耗时: " + (end - start) + "毫秒");
-        ExecuteTasks.act();
     }
 
     private static void claimTestTokens(WebDriver driver, String channelUrl, String address, String workingWindow) throws InterruptedException {
