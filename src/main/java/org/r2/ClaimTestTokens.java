@@ -71,6 +71,8 @@ public class ClaimTestTokens {
 //            "https://discord.com/channels/1308368864505106442/1374560325059350538"
     );
 
+    public static ArrayList<String> failList = new ArrayList<>();
+
     public static void main(String[] args) throws InterruptedException {
         act();
     }
@@ -116,6 +118,7 @@ public class ClaimTestTokens {
                 }
                 System.out.println("浏览器 " + browser + " 的测试币领取任务完成");
             } catch (Exception e) {
+                failList.add(browser);
                 System.out.println("浏览器 " + browser + " 执行脚本出错: " + e.getMessage());
             } finally {
                 // 关闭浏览器
@@ -128,6 +131,7 @@ public class ClaimTestTokens {
         }
         long end = System.currentTimeMillis();
         System.out.println("脚本执行完成，总耗时: " + (end - start) + "毫秒");
+        System.out.println(failList);
     }
 
     private static void claimTestTokens(WebDriver driver, String channelUrl, String address, String workingWindow) throws InterruptedException {
