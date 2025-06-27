@@ -21,6 +21,8 @@ public class ExecuteTasks {
 
     private static final Random rnd = new Random();
 
+    public static String CURRENT_BROWSER = null;
+
     // 浏览器 ID 列表
     public static List<String> browsers = List.of(
             "kxyw4p3",
@@ -28,12 +30,14 @@ public class ExecuteTasks {
             "kxyw4oy",
             "kxyw4ox",
             "kxyw4ow",
-            "kxyw4ov", "kxyw4ot", "kxyw4os",
+            "kxyw4ov", "kxyw4ot",
+            "kxyw4os",
             "kxyw4or", "kxyw4oq", "kxyw4op", "kxyw4oo",
             "kxyw4on", "kxyw4om",
             "kxyw4ok"
             , "kxyw4oj",
-            "kxyw4oi", "kxyw4oh", "kxyw4og", "kxyw4of", "kxyw4oe",
+            "kxyw4oi", "kxyw4oh",
+            "kxyw4og", "kxyw4of", "kxyw4oe",
             "kxyw4od",
             "kxyw4oc",
             "kxyw4ob", "kxyw4oa", "kxyw4o9", "kxyw4o8", "kxyw4o7",
@@ -54,7 +58,8 @@ public class ExecuteTasks {
             "0xEBAA0B86355C830790a49D149CcB80ad81a52266",
             "0x329ADD75074Aa6f2189D4BD32b2eF663C854D88A",
             "0x832f0AA31cebfd43904EEa8Bc0451fa72A3b8Ad9",
-            "0xfff7Df895dA2AcB212235fA940eDbcaFd0a3C56f", "0x0100505Cb84444022317C3E663DFA3F7b80Dee86",
+            "0xfff7Df895dA2AcB212235fA940eDbcaFd0a3C56f",
+            "0x0100505Cb84444022317C3E663DFA3F7b80Dee86",
             "0xAF2139fd81623172D6e8Dd7496D07a766f4a1143", "0x0B665EC35117cFa88293F40Ba2f46218955b7a7C",
             "0x5A8b7fFAFb90cf20e14C862F7E44FB8A182A5B2F", "0xA977E4A7B803FAEEa8DD0557457c142D91B7FB64",
             "0x34b8147a6B3e8b8a7C29A71008Fc9d623a90490A", "0xdc1a9090B2DBC9d99E381f41B877c36c3BC9d2d0",
@@ -88,50 +93,62 @@ public class ExecuteTasks {
 
     static {
         NETWORK_MAP.put("ETHEREUM", " ETH(Sepolia)");
-        NETWORK_MAP.put("PLUME", " Plume Testnet");
-        NETWORK_MAP.put("ARB", " Arbitrum Sepolia");
+//        NETWORK_MAP.put("PLUME", " Plume Testnet");
+//        NETWORK_MAP.put("ARB", " Arbitrum Sepolia");
 //        NETWORK_MAP.put("MONAD", " Monad Testnet");
 //        NETWORK_MAP.put("BNB", " BNB Testnet");
-        NETWORK_MAP.put("BASE", " Base Sepolia");
+//        NETWORK_MAP.put("BASE", " Base Sepolia");
     }
 
     public static ArrayList<String> failList = new ArrayList<>();
 
 
     public static void main(String[] args) {
-        HttpClient httpClient = HttpClient.newHttpClient();
+        act();
+    }
+
+    private static void doClaim(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        WebElement webElement = null;
+        try {
+            //input number
+            webElement = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[.//span[text()='Claim']]")
+            ));
+            webElement.click();
+            System.out.println("click claim done");
+            humanDelay(1000, 2000);
+
+            Thread.sleep(3 * 1000);
+            //okx wallet confirm
+            driver.switchTo().window(okxLoginWindowHandle);
+            OKXExtensionUtil.confirm(driver);
+            humanDelay(3000, 6000);
+            driver.switchTo().window(r2WindowHandle);
+            Thread.sleep(25 * 1000);
+        } catch (Exception e) {
+            System.out.println("doClaim error:" + e.getMessage());
+            failList.add("浏览器 " + CURRENT_BROWSER + " 执行doClaim脚本出错: " + e.getMessage());
+        }
+    }
+
+    public static void act(){
         long start = System.currentTimeMillis();
 
         for (int i = 0; i < browsers.size(); i++) {
             String browser = browsers.get(i);
+            CURRENT_BROWSER = browser;
             String address = addresses.get(i);
             String debugPort = "";
             String webDriver = "";
 
             // 启动浏览器
-            try {
-                HttpResponse<String> response;
-                while (true) {
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(new URI("http://127.0.0.1:50325/api/v1/browser/start?user_id=" + browser))
-                            .GET()
-                            .build();
-                    response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                    System.out.println("启动浏览器响应: " + response.body());
-                    if ((int) JSON.parseObject(response.body()).get("code") == 0) {
-                        break;
-                    } else {
-                        Thread.sleep(10 * 1000);
-                    }
-                }
-                JSONObject jsonObject = JSON.parseObject(response.body());
-                Map<String, String> data = (Map<String, String>) jsonObject.get("data");
-                debugPort = data.get("debug_port");
-                webDriver = data.get("webdriver");
-            } catch (Exception e) {
-                System.out.println("启动浏览器 " + browser + " 失败: " + e.getMessage());
+            Map<String, String> data = PageUtil.retry(() -> PageUtil.startBrowser(browser), 3);
+            if (data == null) {
                 continue;
             }
+            debugPort = data.get("debug_port");
+            webDriver = data.get("webdriver");
 
             // 设置 ChromeDriver
             System.setProperty("webdriver.chrome.driver", webDriver);
@@ -155,9 +172,17 @@ public class ExecuteTasks {
                 String okxLoginWindowHandle = OKXExtensionUtil.loginOKXWallet(driver, "User@123");
                 String r2WindowHandle = PageUtil.openNewWindow(driver, "https://www.r2.money/swap");
                 login(driver, okxLoginWindowHandle, r2WindowHandle);
-                driver.get("https://www.r2.money/swap");
-                r2WindowHandle = driver.getWindowHandle();
+                // doClaim
+//                driver.get("https://www.r2.money/claim-r2");
+//                driver.navigate().refresh();
+//                Thread.sleep(4 * 1000);
+//                r2WindowHandle = driver.getWindowHandle();
+//                doClaim(driver, okxLoginWindowHandle, r2WindowHandle);
                 // doSwap
+                driver.get("https://www.r2.money/swap");
+                driver.navigate().refresh();
+                Thread.sleep(4 * 1000);
+                r2WindowHandle = driver.getWindowHandle();
                 doSwapAllChain(driver, okxLoginWindowHandle, r2WindowHandle);
                 // doStake
                 driver.get("https://www.r2.money/sr2usd");
@@ -178,27 +203,11 @@ public class ExecuteTasks {
                 System.out.println("浏览器 " + browser + " 执行脚本出错: " + e.getMessage());
                 failList.add("浏览器 " + browser + " 执行脚本出错: " + e.getMessage());
             } finally {
-                try {
-                    // 关闭浏览器
-                    HttpResponse<String> response;
-                    int retry = 0;
-                    while (retry <= 10) {
-                        HttpRequest request = HttpRequest.newBuilder()
-                                .uri(new URI("http://127.0.0.1:50325/api/v1/browser/stop?user_id=" + browser))
-                                .GET()
-                                .build();
-                        response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                        System.out.println("关闭浏览器响应: " + response.body());
-                        if ((int) JSON.parseObject(response.body()).get("code") == 0) {
-                            break;
-                        } else {
-                            Thread.sleep(10 * 1000);
-                            retry++;
-                        }
-                    }
-                } catch (Exception e) {
-                    System.out.println("关闭浏览器失败");
-                }
+                // 关闭浏览器
+                PageUtil.retry(() -> {
+                    PageUtil.stopBrowser(browser);
+                    return null;
+                }, 3);
                 driver.quit();
             }
         }
@@ -208,17 +217,17 @@ public class ExecuteTasks {
     }
 
     private static void doLPAllChain(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle) throws InterruptedException {
-        switchChain(driver, NETWORK_MAP.get("ETHEREUM"));
-        doLP(driver, okxLoginWindowHandle, r2WindowHandle, 490, 25 * 1000);
+//        switchChainRetry(driver, NETWORK_MAP.get("ETHEREUM"),3);
+        doLP(driver, okxLoginWindowHandle, r2WindowHandle, 1000, 25 * 1000);
         Thread.sleep(30 * 1000);
         driver.navigate().refresh();
-        Thread.sleep(4 * 1000);
-        switchChain(driver, NETWORK_MAP.get("PLUME"));
-        doLP(driver, okxLoginWindowHandle, r2WindowHandle, 490, 6 * 1000);
-        Thread.sleep(5 * 1000);
-        switchChain(driver, NETWORK_MAP.get("ARB"));
-        doLP(driver, okxLoginWindowHandle, r2WindowHandle, 490, 3 * 1000);
-        Thread.sleep(5 * 1000);
+//        Thread.sleep(4 * 1000);
+//        switchChainRetry(driver, NETWORK_MAP.get("PLUME"),3);
+//        doLP(driver, okxLoginWindowHandle, r2WindowHandle, 490, 6 * 1000);
+//        Thread.sleep(5 * 1000);
+//        switchChainRetry(driver, NETWORK_MAP.get("ARB"),3);
+//        doLP(driver, okxLoginWindowHandle, r2WindowHandle, 490, 3 * 1000);
+//        Thread.sleep(5 * 1000);
     }
 
     private static void doLP(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle, int amount, int sleepTime) {
@@ -229,7 +238,7 @@ public class ExecuteTasks {
             wait.until(ExpectedConditions.elementToBeClickable(
                     By.xpath("//button[.//span[text()='Add Liquidity']]")
             ));
-            webElement = driver.findElements(By.xpath("//button[.//span[text()='Add Liquidity']]")).get(1);
+            webElement = driver.findElements(By.xpath("//button[.//span[text()='Add Liquidity']]")).get(3);
             webElement.click();
             System.out.println("click Add LP done!");
             humanDelay(3000, 6000);
@@ -276,22 +285,23 @@ public class ExecuteTasks {
             humanDelay(3000, 6000);
         } catch (Exception e) {
             System.out.println("doLP error:" + e.getMessage());
+            failList.add("浏览器 " + CURRENT_BROWSER + " 执行doLP脚本出错: " + e.getMessage());
         }
 
     }
 
     private static void doStakeAllChain(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle) throws InterruptedException {
-        switchChain(driver, NETWORK_MAP.get("ETHEREUM"));
-        doStake(driver, okxLoginWindowHandle, r2WindowHandle, 500, 30 * 1000);
+//        switchChainRetry(driver, NETWORK_MAP.get("ETHEREUM"),3);
+        doStake(driver, okxLoginWindowHandle, r2WindowHandle, 1111, 30 * 1000);
         Thread.sleep(30 * 1000);
         driver.navigate().refresh();
         Thread.sleep(4 * 1000);
-        switchChain(driver, NETWORK_MAP.get("PLUME"));
-        doStake(driver, okxLoginWindowHandle, r2WindowHandle, 500, 3 * 1000);
-        switchChain(driver, NETWORK_MAP.get("ARB"));
-        doStake(driver, okxLoginWindowHandle, r2WindowHandle, 500, 3 * 1000);
-        switchChain(driver, NETWORK_MAP.get("BASE"));
-        doStake(driver, okxLoginWindowHandle, r2WindowHandle, 1000, 6 * 1000);
+//        switchChainRetry(driver, NETWORK_MAP.get("PLUME"),3);
+//        doStake(driver, okxLoginWindowHandle, r2WindowHandle, 500, 3 * 1000);
+//        switchChainRetry(driver, NETWORK_MAP.get("ARB"),3);
+//        doStake(driver, okxLoginWindowHandle, r2WindowHandle, 500, 3 * 1000);
+//        switchChainRetry(driver, NETWORK_MAP.get("BASE"),3);
+//        doStake(driver, okxLoginWindowHandle, r2WindowHandle, 1000, 6 * 1000);
 
 
         //        switchChain(driver, NETWORK_MAP.get("MONAD"));
@@ -306,7 +316,7 @@ public class ExecuteTasks {
         //switch chain
         for (Map.Entry<String, String> entry : NETWORK_MAP.entrySet()) {
             String value = entry.getValue();
-            switchChain(driver, value);
+//            switchChainRetry(driver, value,3);
             doSwap(driver, okxLoginWindowHandle, r2WindowHandle, entry.getKey());
             driver.navigate().refresh();
             Thread.sleep(4 * 1000);
@@ -353,6 +363,7 @@ public class ExecuteTasks {
             humanDelay(3000, 6000);
         } catch (Exception e) {
             System.out.println("doStake error:" + e.getMessage());
+            failList.add("浏览器 " + CURRENT_BROWSER + " 执行doStake脚本出错: " + e.getMessage());
         }
 
     }
@@ -367,8 +378,8 @@ public class ExecuteTasks {
             ));
             webElement.click();
             webElement.clear();
-            PageUtil.sendKeysHumanLike(webElement, "1000");
-            System.out.println("sendKeys:" + 1000 + " done!");
+            PageUtil.sendKeysHumanLike(webElement, "2222");
+            System.out.println("sendKeys:" + 2222 + " done!");
             humanDelay(1000, 2000);
 
             //click buy
@@ -410,10 +421,15 @@ public class ExecuteTasks {
             }
         } catch (Exception e) {
             System.out.println("doSwap error:" + e.getMessage());
+            failList.add("浏览器 " + CURRENT_BROWSER + " 执行doSwap脚本出错: " + e.getMessage());
         }
     }
 
-    private static void switchChain(WebDriver driver, String chain) {
+    public static void switchChainRetry(WebDriver driver, String chain, int retryTime) {
+        PageUtil.retry(driver, d -> switchChain(d, chain), retryTime);
+    }
+
+    private static boolean switchChain(WebDriver driver, String chain) {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(25));
         WebElement webElement = null;
         try {
@@ -435,7 +451,9 @@ public class ExecuteTasks {
             humanDelay(3000, 6000);
         } catch (Exception e) {
             System.out.println("switch chain error:" + e.getMessage());
+            return false;
         }
+        return true;
     }
 
     private static void login(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle) throws InterruptedException {

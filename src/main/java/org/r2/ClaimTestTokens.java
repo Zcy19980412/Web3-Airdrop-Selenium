@@ -7,6 +7,7 @@ import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.util.PageUtil;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -21,10 +22,12 @@ public class ClaimTestTokens {
 
     // 浏览器 ID 列表
     public static List<String> browsers = List.of(
-            "kxyw4p3", "kxyw4p0", "kxyw4oy", "kxyw4ox",
+            "kxyw4p3",
+            "kxyw4p0",
+            "kxyw4oy", "kxyw4ox",
             "kxyw4ow", "kxyw4ov", "kxyw4ot", "kxyw4os",
-            "kxyw4or", "kxyw4oq", "kxyw4op", "kxyw4oo", "kxyw4on", "kxyw4om", "kxyw4ok", "kxyw4oj",
-            "kxyw4oi",
+            "kxyw4or", "kxyw4oq", "kxyw4op", "kxyw4oo", "kxyw4on", "kxyw4om", "kxyw4ok",
+            "kxyw4oj", "kxyw4oi",
             "kxyw4oh", "kxyw4og", "kxyw4of", "kxyw4oe", "kxyw4od", "kxyw4oc", "kxyw4ob",
             "kxyw4oa", "kxyw4o9", "kxyw4o8", "kxyw4o7", "kxyw4o6", "kxyw4o5", "kxyw4o4", "kxyw4o3",
             "kxyw4o2", "kxyw4o1", "kxyw4ny", "kxyw4nx", "kxyw4nw", "kxyw4nv", "kxyw4nu", "kxyw4nt",
@@ -34,7 +37,8 @@ public class ClaimTestTokens {
 
     // 钱包地址列表/faucet address:0xf02D957658D8C836c9240545122BE6D168713Db6
     public static List<String> addresses = List.of(
-            "0xf02D957658D8C836c9240545122BE6D168713Db6", "0xA16C56e87ff0cf44B1D843DbcA11eb7F348839A7",
+            "0xf02D957658D8C836c9240545122BE6D168713Db6",
+            "0xA16C56e87ff0cf44B1D843DbcA11eb7F348839A7",
             "0x117A4D82908F5d495943A588DA671d90909f8107", "0xEBAA0B86355C830790a49D149CcB80ad81a52266",
             "0x329ADD75074Aa6f2189D4BD32b2eF663C854D88A", "0x832f0AA31cebfd43904EEa8Bc0451fa72A3b8Ad9",
             "0xfff7Df895dA2AcB212235fA940eDbcaFd0a3C56f", "0x0100505Cb84444022317C3E663DFA3F7b80Dee86",
@@ -63,12 +67,12 @@ public class ClaimTestTokens {
 
     // Discord 频道链接列表
     public static List<String> discordChannels = List.of(
-            "https://discord.com/channels/1308368864505106442/1339883019556749395",
-            "https://discord.com/channels/1308368864505106442/1364457608962117774",
-            "https://discord.com/channels/1308368864505106442/1364457925632065620",
-            "https://discord.com/channels/1308368864505106442/1367156681154236467",
-            "https://discord.com/channels/1308368864505106442/1372399850339045488",
-            "https://discord.com/channels/1308368864505106442/1374560325059350538"
+            "https://discord.com/channels/1308368864505106442/1339883019556749395"
+//            "https://discord.com/channels/1308368864505106442/1364457608962117774",
+//            "https://discord.com/channels/1308368864505106442/1364457925632065620",
+//            "https://discord.com/channels/1308368864505106442/1367156681154236467",
+//            "https://discord.com/channels/1308368864505106442/1372399850339045488",
+//            "https://discord.com/channels/1308368864505106442/1374560325059350538"
     );
 
     public static void main(String[] args) throws InterruptedException {
@@ -83,29 +87,12 @@ public class ClaimTestTokens {
             String webDriver = "";
 
             // 启动浏览器
-            try {
-                HttpResponse<String> response;
-                while (true) {
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(new URI("http://127.0.0.1:50325/api/v1/browser/start?user_id=" + browser))
-                            .GET()
-                            .build();
-                    response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                    System.out.println("启动浏览器响应: " + response.body());
-                    if ((int) JSON.parseObject(response.body()).get("code") == 0) {
-                        break;
-                    } else {
-                        Thread.sleep(10 * 1000);
-                    }
-                }
-                JSONObject jsonObject = JSON.parseObject(response.body());
-                Map<String, String> data = (Map<String, String>) jsonObject.get("data");
-                debugPort = data.get("debug_port");
-                webDriver = data.get("webdriver");
-            } catch (Exception e) {
-                System.out.println("启动浏览器 " + browser + " /address: " + address + " 失败: " + e.getMessage());
+            Map<String, String> data = PageUtil.retry(() -> PageUtil.startBrowser(browser), 3);
+            if (data == null) {
                 continue;
             }
+            debugPort = data.get("debug_port");
+            webDriver = data.get("webdriver");
 
             // 设置 ChromeDriver
             System.setProperty("webdriver.chrome.driver", webDriver);
@@ -123,38 +110,26 @@ public class ClaimTestTokens {
 
                 // 使用第一个标签页
                 String workingWindow = driver.getWindowHandle();
-                System.out.println("使用标签页: " + workingWindow);
 
                 // 遍历每个 Discord 频道
                 for (String channel : discordChannels) {
                     claimTestTokens(driver, channel, address, workingWindow);
                 }
-
-                // 关闭浏览器
-                HttpResponse<String> response;
-                while (true) {
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(new URI("http://127.0.0.1:50325/api/v1/browser/stop?user_id=" + browser))
-                            .GET()
-                            .build();
-                    response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-                    System.out.println("关闭浏览器响应: " + response.body());
-                    if ((int) JSON.parseObject(response.body()).get("code") == 0) {
-                        break;
-                    } else {
-                        Thread.sleep(10 * 1000);
-                    }
-                }
-
                 System.out.println("浏览器 " + browser + " 的测试币领取任务完成");
             } catch (Exception e) {
                 System.out.println("浏览器 " + browser + " 执行脚本出错: " + e.getMessage());
             } finally {
+                // 关闭浏览器
+                PageUtil.retry(() -> {
+                    PageUtil.stopBrowser(browser);
+                    return null;
+                }, 3);
                 driver.quit();
             }
         }
         long end = System.currentTimeMillis();
         System.out.println("脚本执行完成，总耗时: " + (end - start) + "毫秒");
+        ExecuteTasks.act();
     }
 
     private static void claimTestTokens(WebDriver driver, String channelUrl, String address, String workingWindow) throws InterruptedException {
@@ -165,7 +140,7 @@ public class ClaimTestTokens {
 
             // 访问 Discord 频道
             driver.get(channelUrl);
-            humanDelay(6000, 12000);
+            humanDelay(3000, 6000);
 
             // 等待并定位消息输入框
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
@@ -179,7 +154,7 @@ public class ClaimTestTokens {
                 } catch (Exception e) {
                     System.out.println("尝试 " + attempt + " 次定位输入框失败: " + e.getMessage());
                     if (attempt < 3) {
-                        humanDelay(3000, 6000);
+                        humanDelay(1000, 3000);
                         driver.navigate().refresh();
                     }
                 }
@@ -198,7 +173,7 @@ public class ClaimTestTokens {
             }
             messageBox.sendKeys(Keys.ENTER);
             System.out.println("在频道 " + channelUrl + " 中发送命令: " + command);
-            humanDelay(2000, 5000);
+            humanDelay(2000, 3000);
         } catch (Exception e) {
             System.out.println("在频道 " + channelUrl + " 领取测试币失败: " + e.getMessage());
         }

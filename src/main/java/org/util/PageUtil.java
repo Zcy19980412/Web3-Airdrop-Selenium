@@ -1,11 +1,16 @@
 package org.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import org.openqa.selenium.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.*;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 public class PageUtil {
 
@@ -59,4 +64,104 @@ public class PageUtil {
         }
     }
 
+    public static <R> R retry(WebDriver driver, Function<WebDriver, R> function, int retryTime) {
+        int count = 0;
+        RuntimeException lastException = null;
+
+        while (count < retryTime) {
+            try {
+                return function.apply(driver);
+            } catch (RuntimeException e) {
+                lastException = e;
+                count++;
+                System.out.println("Retry " + count + "/" + retryTime + " failed: " + e.getMessage());
+                try {
+                    Thread.sleep(1000); // 可选：每次重试之间暂停一下
+                    driver.navigate().refresh();
+                    Thread.sleep(3 * 1000); // 可选：每次重试之间暂停一下
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Retry interrupted", ie);
+                }
+            }
+        }
+
+        throw new RuntimeException("Function failed after " + retryTime + " retries", lastException);
+    }
+
+
+    public static <R> R retry(Supplier<R> supplier, int retryTime) {
+        int count = 0;
+        RuntimeException lastException = null;
+
+        while (count < retryTime) {
+            try {
+                return supplier.get();
+            } catch (RuntimeException e) {
+                lastException = e;
+                count++;
+                System.out.println("Retry " + count + "/" + retryTime + " failed: " + e.getMessage());
+                try {
+                    Thread.sleep(10 * 1000); // 可选：每次重试之间暂停一下
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("Retry interrupted", ie);
+                }
+            }
+        }
+
+        throw new RuntimeException("Function failed after " + retryTime + " retries", lastException);
+    }
+
+
+    public static Map<String, String> startBrowser(String browserId) {
+        HttpClient httpClient = HttpClient.newHttpClient();
+        try {
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://127.0.0.1:50325/api/v1/browser/start?user_id=" + browserId))
+                    .GET()
+                    .build();
+
+            HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("启动浏览器响应: " + response.body());
+
+            JSONObject json = JSON.parseObject(response.body());
+            Integer code = json.getInteger("code");
+
+            if (code != null && code == 0) {
+                // 启动成功，返回数据
+                Map<String, String> data = (Map<String, String>) json.get("data");
+                return data;
+            } else {
+                throw new RuntimeException("启动浏览器响应: " + response.body());
+            }
+        } catch (Exception e) {
+            System.out.println("启动浏览器失败: " + e.getMessage());
+            throw new RuntimeException("启动浏览器失败: " + e.getMessage());
+        }
+    }
+
+    public static void stopBrowser(String browserId) {
+        HttpClient httpClient = HttpClient.newHttpClient();
+        try {
+            HttpResponse<String> response;
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(new URI("http://127.0.0.1:50325/api/v1/browser/stop?user_id=" + browserId))
+                    .GET()
+                    .build();
+
+            response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println("关闭浏览器响应: " + response.body());
+
+            JSONObject json = JSON.parseObject(response.body());
+            Integer code = json.getInteger("code");
+            if (code == null || code != 0) {
+                throw new RuntimeException("code == null || code != 0");
+            }
+        } catch (Exception e) {
+            System.out.println("关闭浏览器失败：" + e.getMessage());
+            throw new RuntimeException("Failed to stop browser for user_id=" + browserId, e);
+        }
+    }
 }

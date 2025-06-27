@@ -123,6 +123,17 @@ public class ActiveXAccounts {
             "@EvaCmore",
             "@0xAllen888",
             "@Build_OnBNB",
+            "@0xlong_life",
+            "@Arya_web3",
+            "@Relife_ri",
+            "@believeapp",
+            "@pasternak",
+            "@winiam4444",
+            "@KKaWSB",
+            "@Ga__ke",
+            "@jump_",
+            "@AptosLabs",
+            "@ShelbyServes",
             "@0xcryptowizard"
     );
 
