@@ -137,7 +137,10 @@ public class ClaimTestTokens {
             System.out.println("访问频道: " + channelUrl);
 
             // 访问 Discord 频道
+            driver.navigate().refresh();
             driver.get(channelUrl);
+            driver.navigate().refresh();
+            Thread.sleep(4 * 1000);
             humanDelay(3000, 6000);
 
             // 等待并定位消息输入框
