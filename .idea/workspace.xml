@@ -6,6 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="dc4f6efe-caa6-4269-96bc-170614a74b5a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ActiveXAccounts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ActiveXAccounts.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/org/r2/ExecuteTasks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/r2/ExecuteTasks.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -35,28 +36,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Application.ActiveXAccounts.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ClaimTestTokens.executor&quot;: &quot;Run&quot;,
-    &quot;Application.DiscordLogin.executor&quot;: &quot;Run&quot;,
-    &quot;Application.ExecuteTasks.executor&quot;: &quot;Run&quot;,
-    &quot;Application.Main.executor&quot;: &quot;Run&quot;,
-    &quot;Application.TOTPUtil.executor&quot;: &quot;Run&quot;,
-    &quot;Maven.selenium [clean].executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/develop/code/java/ads-AirdropScript&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Application.ActiveXAccounts.executor": "Run",
+    "Application.ClaimTestTokens.executor": "Run",
+    "Application.DiscordLogin.executor": "Run",
+    "Application.ExecuteTasks.executor": "Run",
+    "Application.Main.executor": "Run",
+    "Application.Start.executor": "Run",
+    "Application.TOTPUtil.executor": "Run",
+    "Maven.selenium [clean].executor": "Run",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/develop/code/java/ads-AirdropScript"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\develop\code\java\selenium\selenium\src\main\java\org" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ClaimTestTokens">
+  <component name="RunManager" selected="Application.ExecuteTasks">
     <configuration name="ActiveXAccounts" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.ActiveXAccounts" />
       <module name="selenium" />
@@ -109,12 +111,12 @@
         <option name="Make" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Main" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
-      <option name="MAIN_CLASS_NAME" value="org.example.Main" />
+    <configuration name="Start" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
+      <option name="MAIN_CLASS_NAME" value="org.main.Start" />
       <module name="selenium" />
       <extension name="coverage">
         <pattern>
-          <option name="PATTERN" value="org.example.*" />
+          <option name="PATTERN" value="org.main.*" />
           <option name="ENABLED" value="true" />
         </pattern>
       </extension>
@@ -124,11 +126,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.ClaimTestTokens" />
         <item itemvalue="Application.ExecuteTasks" />
+        <item itemvalue="Application.Start" />
+        <item itemvalue="Application.ClaimTestTokens" />
         <item itemvalue="Application.ActiveXAccounts" />
         <item itemvalue="Application.DiscordLogin" />
-        <item itemvalue="Application.Main" />
       </list>
     </recent_temporary>
   </component>

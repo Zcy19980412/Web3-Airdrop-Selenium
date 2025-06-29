@@ -188,13 +188,19 @@ public class ExecuteTasks {
                 Thread.sleep(4 * 1000);
                 r2WindowHandle = driver.getWindowHandle();
                 doStakeAllChain(driver, okxLoginWindowHandle, r2WindowHandle);
+                // doBondingContract
+//                driver.get("https://www.r2.money/bonding-contract");
+//                driver.navigate().refresh();
+//                Thread.sleep(4 * 1000);
+//                r2WindowHandle = driver.getWindowHandle();
+//                doBondingContract(driver, okxLoginWindowHandle, r2WindowHandle);
                 // doLP
                 driver.get("https://www.r2.money/liquidity");
                 driver.navigate().refresh();
                 Thread.sleep(4 * 1000);
                 r2WindowHandle = driver.getWindowHandle();
                 doLPAllChain(driver, okxLoginWindowHandle, r2WindowHandle);
-
+//
                 // doDeposit
                 driver.get("https://www.r2.money/deposit");
                 driver.navigate().refresh();
@@ -227,6 +233,48 @@ public class ExecuteTasks {
         for (Map.Entry<String, String> stringStringEntry : rankMap.entrySet()) {
             System.out.println(stringStringEntry.getKey() + " : " + stringStringEntry.getValue());
         }
+    }
+
+    private static void doBondingContract(WebDriver driver, String okxLoginWindowHandle, String r2WindowHandle) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(20));
+        WebElement webElement = null;
+        try {
+            //input number
+            webElement = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[.//span[text()='Max']]")
+            ));
+            webElement.click();
+            System.out.println("bonding click Max done!");
+            humanDelay(1000, 2000);
+
+            //click buy
+            webElement = wait.until(ExpectedConditions.elementToBeClickable(
+                    By.xpath("//button[.//span[text()='Redeem']]")
+            ));
+            webElement.click();
+            System.out.println("click Redeem done!");
+            humanDelay(3000, 6000);
+
+            //okx wallet approve
+            driver.switchTo().window(okxLoginWindowHandle);
+            Thread.sleep(3 * 1000);
+
+            if (OKXExtensionUtil.needApprove(driver)) {
+                //approve
+                OKXExtensionUtil.approve(driver);
+                humanDelay(3000, 6000);
+                Thread.sleep(25 * 1000);
+            }
+            //okx wallet confirm
+            OKXExtensionUtil.confirm(driver);
+            humanDelay(3000, 6000);
+            driver.switchTo().window(r2WindowHandle);
+            Thread.sleep(25 * 1000);
+        } catch (Exception e) {
+            System.out.println("doBonding error:" + e.getMessage());
+            failList.add("浏览器 " + CURRENT_BROWSER + " 执行doBonding脚本出错: " + e.getMessage());
+        }
+
     }
 
     private static void searchRank(WebDriver driver) {
@@ -274,13 +322,17 @@ public class ExecuteTasks {
 
 
             //click input chain
+//            webElement = wait.until(ExpectedConditions.elementToBeClickable(
+//                    By.cssSelector("input[type='number'][min='0']") // 修正后的 CSS 选择器
+//            ));
             webElement = wait.until(ExpectedConditions.elementToBeClickable(
-                    By.cssSelector("input[type='number'][min='0']") // 修正后的 CSS 选择器
+                    By.xpath("(//a[text()='Max'])[1]") // 修正后的 CSS 选择器
             ));
+
             webElement.click();
-            webElement.clear();
-            PageUtil.sendKeysHumanLike(webElement, String.valueOf(amount));
-            System.out.println("sendKeys:" + amount + " done!");
+//            PageUtil.sendKeysHumanLike(webElement, String.valueOf(amount));
+//            System.out.println("sendKeys:" + amount + " done!");
+            System.out.println("click max lp done");
             humanDelay(1000, 2000);
 
             //click Add

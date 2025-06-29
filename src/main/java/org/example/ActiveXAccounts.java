@@ -134,6 +134,7 @@ public class ActiveXAccounts {
             "@jump_",
             "@AptosLabs",
             "@ShelbyServes",
+            "@WY_mask",
             "@0xcryptowizard"
     );
 
