@@ -4,6 +4,7 @@ package org.r2;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.util.PageUtil;
@@ -146,6 +147,15 @@ public class ClaimTestTokens {
             driver.navigate().refresh();
             Thread.sleep(4 * 1000);
             humanDelay(3000, 6000);
+
+            // 👈 模拟按下 Enter 键来关闭可能的弹窗
+            try {
+                Actions actions = new Actions(driver);
+                actions.sendKeys(Keys.ENTER).perform();
+                Thread.sleep(500); // 给页面一点时间反应
+            } catch (Exception e) {
+                System.out.println("尝试按 Enter 关闭弹窗失败: " + e.getMessage());
+            }
 
             // 等待并定位消息输入框
             WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));

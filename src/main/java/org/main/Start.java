@@ -7,17 +7,17 @@ import org.r2.ExecuteTasks;
 
 public class Start {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
         activeAccounts();
         r2Act();
     }
 
-    public static void r2Act(){
+    public static void r2Act() {
         ClaimTestTokens.act();
         ExecuteTasks.act();
     }
 
-    public static void activeAccounts(){
+    public static void activeAccounts() {
         ActiveXAccounts.act();
     }
 

@@ -6,8 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="dc4f6efe-caa6-4269-96bc-170614a74b5a" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/example/ActiveXAccounts.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/example/ActiveXAccounts.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/org/r2/ExecuteTasks.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/r2/ExecuteTasks.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/org/main/Start.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/org/main/Start.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,7 +57,7 @@
       <recent name="D:\develop\code\java\selenium\selenium\src\main\java\org" />
     </key>
   </component>
-  <component name="RunManager" selected="Application.ExecuteTasks">
+  <component name="RunManager" selected="Application.Start">
     <configuration name="ActiveXAccounts" type="Application" factoryName="Application" temporary="true" nameIsGenerated="true">
       <option name="MAIN_CLASS_NAME" value="org.example.ActiveXAccounts" />
       <module name="selenium" />
@@ -126,8 +125,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Application.ExecuteTasks" />
         <item itemvalue="Application.Start" />
+        <item itemvalue="Application.ExecuteTasks" />
         <item itemvalue="Application.ClaimTestTokens" />
         <item itemvalue="Application.ActiveXAccounts" />
         <item itemvalue="Application.DiscordLogin" />
